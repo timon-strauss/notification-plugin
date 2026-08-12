@@ -14,7 +14,7 @@ This plugin adds two things the built-in system doesn't:
 
 1. **Focus awareness.** It checks whether the exact terminal tab running this Claude session is frontmost. If you're already looking at it, no notification is sent. If you've tabbed away to another Terminal tab, another app or another window the notification fires.
 2. **Click-to-focus.** Clicking the notification brings the correct terminal tab back to the front. This allows for very good control over many parallell sessions.
-3. **Session-Identifier.** The notification also shows a short identifier for the sending sessions, so you know exactly in where to look.
+3. **Session-Identifier.** The notification also shows a short identifier for the sending sessions, so you know exactly in where to look. If you have set a custom name for the session via Claude Code's `/rename` command, that name is used; otherwise the plugin falls back to Claude's auto-generated session title, then the last user prompt.
 
 ---
 
@@ -62,6 +62,21 @@ Then restart your Claude Code session so it picks up the new hook scripts.
 
 ---
 
+## Configuration
+
+The plugin reads a `config.json` in `hooks/notification/`. Currently one key is supported:
+
+```json
+{
+  "sound": "Ping"
+}
+```
+
+- **`sound`** — name of a macOS system sound played with the notification. Valid values: `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, `default`.
+- Set `sound` to `"none"` (or any unrecognized name, or leave the file out entirely) to get a silent notification — the toast still appears, just without sound.
+
+---
+
 ## Files
 
 ```
@@ -72,6 +87,7 @@ Then restart your Claude Code session so it picks up the new hook scripts.
 └── hooks/
     ├── hooks.json           # hook registration (Notification + Stop)
     └── notification/
+        ├── config.json                     # user configuration (sound, …)
         ├── claude_notification_check.zsh   # focus check, gate the notification
         ├── claude_notification.zsh         # build + fire the notification
         └── claude_code_icon.png            # icon used in the toast
