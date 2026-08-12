@@ -14,7 +14,7 @@ This plugin adds two things the built-in system doesn't:
 
 1. **Focus awareness.** It checks whether the exact terminal tab running this Claude session is frontmost. If you're already looking at it, no notification is sent. If you've tabbed away to another Terminal tab, another app or another window the notification fires.
 2. **Click-to-focus.** Clicking the notification brings the correct terminal tab back to the front. This allows for very good control over many parallell sessions.
-3. **Session-Identifier.** The notification also shows a short identifier for the sending sessions, so you know exactly in where to look.
+3. **Session-Identifier.** The notification also shows a short identifier for the sending sessions, so you know exactly in where to look. If you have set a custom name for the session via Claude Code's `/rename` command, that name is used; otherwise the plugin falls back to Claude's auto-generated session title, then the last user prompt.
 
 ---
 

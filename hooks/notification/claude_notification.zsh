@@ -51,12 +51,15 @@ transcript_path=$(printf '%s' "$hook_json" | jq -r '.transcript_path // empty' 2
 
 message="Your Session"
 if [[ -n "$transcript_path" && -r "$transcript_path" ]]; then
-  # Prefer Claude Code's own session title — the same short summary shown
-  # in the /resume menu. Falls back to the user's last prompt for fresh
-  # sessions where no title has been generated yet: first the dedicated
-  # `last-prompt` event, then a walk over plain-string user messages
-  # (needed because `last-prompt` is missing in some sessions).
-  body=$(jq -r 'select(.type=="ai-title") | .aiTitle' "$transcript_path" 2>/dev/null | tail -n1)
+  # Preference order:
+  #   1. `custom-title` — name the user set explicitly via `/rename`.
+  #   2. `ai-title`      — Claude Code's own short summary shown in /resume.
+  #   3. `last-prompt`   — the user's last prompt (dedicated event).
+  #   4. plain-string user messages (fallback for sessions missing `last-prompt`).
+  body=$(jq -r 'select(.type=="custom-title") | .customTitle' "$transcript_path" 2>/dev/null | tail -n1)
+  if [[ -z "$body" ]]; then
+    body=$(jq -r 'select(.type=="ai-title") | .aiTitle' "$transcript_path" 2>/dev/null | tail -n1)
+  fi
   if [[ -z "$body" ]]; then
     body=$(jq -r 'select(.type=="last-prompt") | .lastPrompt' "$transcript_path" 2>/dev/null | tail -n1)
   fi
