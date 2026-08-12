@@ -64,23 +64,26 @@ Then restart your Claude Code session so it picks up the new hook scripts.
 
 ## Configuration
 
-The plugin reads a `config.json` in `hooks/notification/`. Supported keys:
+The plugin reads a `config.json` in `hooks/notification/`. Each hook is an object with `enabled` and an optional `sound`; a top-level `defaultSound` covers the hooks that don't set their own:
 
 ```json
 {
-  "sound": "Ping",
-  "notifyOnStop": true,
-  "notifyOnStopFailure": true,
-  "notifyOnPermission": true
+  "defaultSound": "Ping",
+  "stop":        { "enabled": true,  "sound": "Glass" },
+  "stopFailure": { "enabled": true,  "sound": "Basso" },
+  "permission":  { "enabled": true }
 }
 ```
 
-- **`sound`** — name of a macOS system sound played with the notification. Valid values: `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, `default`.
-- Missing `sound` key or missing `config.json` falls back to `default` (the macOS system default sound). Set `sound` to `"none"` (or any unrecognized name) to get a silent notification — the toast still appears, just without sound.
-- **`notifyOnStop`** *(default `true`)* — fire a toast when a Claude session finishes its turn. Set to `false` to silence just this hook.
-- **`notifyOnStopFailure`** *(default `true`)* — fire a toast when a Claude session's turn ends due to an API error (rate limit, overload, auth failure, etc.). Set to `false` to silence just this hook.
-- **`notifyOnPermission`** *(default `true`)* — fire a toast when Claude asks for permission (tool approval prompt). Set to `false` to silence just this hook.
-- Missing keys or an unreadable `config.json` fall back to enabled, so existing installs keep working.
+- **`defaultSound`** — sound used when a hook doesn't specify its own. Valid values: `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, `default`.
+- **`stop`** — fires when a Claude session finishes its turn.
+- **`stopFailure`** — fires when a session's turn ends due to an API error (rate limit, overload, auth failure, etc.).
+- **`permission`** — fires when Claude asks for permission (tool approval prompt).
+- Each hook object accepts:
+  - **`enabled`** *(default `true`)* — set to `false` to silence just that hook.
+  - **`sound`** *(optional)* — overrides `defaultSound` for that hook only.
+- **Sound fallback chain:** hook `sound` → `defaultSound` → macOS `default` sound. Set any `sound` to `"none"` (or an unrecognized name) for a silent notification — the toast still appears, just without sound.
+- Missing keys or an unreadable `config.json` fall back to enabled hooks with the `default` sound, so existing installs keep working.
 
 ---
 

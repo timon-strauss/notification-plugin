@@ -17,15 +17,15 @@ event="${1:-notification}"
 # to enabled, so existing installs keep working.
 config_file="$script_dir/config.json"
 case "$event" in
-  stop)         config_key="notifyOnStop" ;;
-  stop_failure) config_key="notifyOnStopFailure" ;;
-  menu)         config_key="notifyOnPermission" ;;
-  *)            config_key="" ;;
+  stop)         hook_key="stop" ;;
+  stop_failure) hook_key="stopFailure" ;;
+  menu)         hook_key="permission" ;;
+  *)            hook_key="" ;;
 esac
-if [[ -n "$config_key" && -r "$config_file" ]]; then
+if [[ -n "$hook_key" && -r "$config_file" ]]; then
   # Only literal `false` disables. Missing key -> jq emits "null"; anything
   # else (true, null, malformed) keeps the hook enabled.
-  enabled=$(jq -r ".${config_key}" "$config_file" 2>/dev/null)
+  enabled=$(jq -r ".${hook_key}.enabled" "$config_file" 2>/dev/null)
   [[ "$enabled" == "false" ]] && exit 0
 fi
 
@@ -124,8 +124,7 @@ if ! $tab_focused; then
   }
   bundle_id=$(find_bundle_id)
 
-  CLAUDE_BUNDLE_ID="$bundle_id" CLAUDE_TTY="$my_tty" \
-    printf '%s' "$hook_json" | \
-    CLAUDE_BUNDLE_ID="$bundle_id" CLAUDE_TTY="$my_tty" \
+  printf '%s' "$hook_json" | \
+    CLAUDE_BUNDLE_ID="$bundle_id" CLAUDE_TTY="$my_tty" CLAUDE_HOOK_KEY="$hook_key" \
     zsh "$script_dir/claude_notification.zsh" "$event"
 fi

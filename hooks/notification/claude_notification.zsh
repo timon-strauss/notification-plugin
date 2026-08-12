@@ -11,16 +11,26 @@
 script_dir="${0:A:h}"
 
 # ---------------------------------------------------------------------------
-# 0) Load user config from config.json next to this hook. Missing file or
-#    missing key falls back to the macOS "default" system sound; only an
-#    explicit "none" (or an unrecognized name) silences the toast.
+# 0) Load user config from config.json next to this hook. Sound resolves
+#    down a fallback chain: per-hook `sound` -> top-level `defaultSound` ->
+#    macOS "default" system sound. Missing config or empty values simply
+#    fall through. An explicit "none" (or an unrecognized name) silences
+#    the toast — the whitelist check further down handles that.
 # ---------------------------------------------------------------------------
 config_file="$script_dir/config.json"
 
 sound="default"
 if [[ -r "$config_file" ]]; then
-  configured_sound=$(jq -r '.sound // empty' "$config_file" 2>/dev/null)
-  [[ -n "$configured_sound" ]] && sound="$configured_sound"
+  hook_sound=""
+  if [[ -n "$CLAUDE_HOOK_KEY" ]]; then
+    hook_sound=$(jq -r ".${CLAUDE_HOOK_KEY}.sound // empty" "$config_file" 2>/dev/null)
+  fi
+  if [[ -n "$hook_sound" ]]; then
+    sound="$hook_sound"
+  else
+    default_sound=$(jq -r '.defaultSound // empty' "$config_file" 2>/dev/null)
+    [[ -n "$default_sound" ]] && sound="$default_sound"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
