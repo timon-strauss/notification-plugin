@@ -64,26 +64,61 @@ Then restart your Claude Code session so it picks up the new hook scripts.
 
 ## Configuration
 
-The plugin reads a `config.json` in `hooks/notification/`. Each hook is an object with `enabled` and an optional `sound`; a top-level `defaultSound` covers the hooks that don't set their own:
+Configure the plugin from inside any Claude session that uses the plugin.
 
-```json
-{
-  "defaultSound": "Ping",
-  "stop":        { "enabled": true,  "sound": "Glass" },
-  "stopFailure": { "enabled": true,  "sound": "Basso" },
-  "permission":  { "enabled": true }
-}
+### Option 1 — Direct: `/notifications-config <key>=<value>`
+
+Pass one or more `key=value` pairs to apply changes immediately. Fastest when you know exactly what you want to change.
+
+```sh
+# Change the sound played when a turn ends
+/notifications-config stop.sound=Glass
+
+# Silence just the permission-request notifications
+/notifications-config permission.enabled=false
+
+# Multiple changes in one call
+/notifications-config stop.enabled=true stop.sound=Ping defaultSound=Hero
 ```
 
-- **`defaultSound`** — sound used when a hook doesn't specify its own. Valid values: `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, `default`.
-- **`stop`** — fires when a Claude session finishes its turn.
-- **`stopFailure`** — fires when a session's turn ends due to an API error (rate limit, overload, auth failure, etc.).
-- **`permission`** — fires when Claude asks for permission (tool approval prompt).
-- Each hook object accepts:
-  - **`enabled`** *(default `true`)* — set to `false` to silence just that hook.
-  - **`sound`** *(optional)* — overrides `defaultSound` for that hook only.
-- **Sound fallback chain:** hook `sound` → `defaultSound` → macOS `default` sound. Set any `sound` to `"none"` (or an unrecognized name) for a silent notification — the toast still appears, just without sound.
-- Missing keys or an unreadable `config.json` fall back to enabled hooks with the `default` sound, so existing installs keep working.
+**Valid keys:**
+
+| Key | Values | What it controls |
+|---|---|---|
+| `defaultSound` | any sound name (see below) | Fallback sound when a hook has no `sound` of its own |
+| `stop.enabled` | `true` / `false` | Notification when a turn finishes normally |
+| `stop.sound` | any sound name | Sound for `stop` notifications |
+| `stopFailure.enabled` | `true` / `false` | Notification when a turn ends via API error |
+| `stopFailure.sound` | any sound name | Sound for `stopFailure` notifications |
+| `permission.enabled` | `true` / `false` | Notification when Claude asks for tool permission |
+| `permission.sound` | any sound name | Sound for `permission` notifications |
+
+**Valid sound names:** `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, `default`, or `none` for a silent notification (toast still appears).
+
+Invalid keys, unknown sound names, or non-boolean values for `enabled` are rejected before anything is written.
+
+### Option 2 — Interactive: `/notifications-config`
+
+Run the command with no arguments to see the current settings and describe your changes in plain language. Claude figures out the right keys and applies them.
+
+```sh
+/notifications-config
+```
+
+Then reply with something like:
+
+- *"turn off stop notifications"*
+- *"change the sound for stopFailure to Basso and set the default sound to Glass"*
+- *"make permission prompts silent but keep the toast"*
+- *"nothing"* or *"cancel"* to leave everything as-is
+
+Best when you don't remember the exact key names or want to change several things at once.
+
+### Notes
+
+- Changes take effect on the next hook fire — no restart needed.
+- **Sound fallback chain:** hook `sound` → `defaultSound` → macOS `default` sound.
+- The config lives at `hooks/notification/config.json` if you'd rather edit it directly. Missing keys or an unreadable file fall back to all hooks enabled with the `default` sound.
 
 ---
 
@@ -94,10 +129,13 @@ The plugin reads a `config.json` in `hooks/notification/`. Each hook is an objec
 ├── .claude-plugin/
 │   ├── plugin.json          # plugin manifest
 │   └── marketplace.json     # marketplace manifest (single-plugin marketplace)
+├── commands/
+│   └── notifications-config.md  # /notifications-config slash command
 └── hooks/
     ├── hooks.json           # hook registration (Notification + Stop + StopFailure)
     └── notification/
         ├── config.json                     # user configuration (sound, …)
+        ├── config_edit.zsh                 # /config helper: read/write/validate
         ├── claude_notification_check.zsh   # focus check, gate the notification
         ├── claude_notification.zsh         # build + fire the notification
         └── claude_code_icon.png            # icon used in the toast
