@@ -62,6 +62,21 @@ Then restart your Claude Code session so it picks up the new hook scripts.
 
 ---
 
+## Configuration
+
+The plugin reads a `config.json` in `hooks/notification/`. Currently one key is supported:
+
+```json
+{
+  "sound": "Ping"
+}
+```
+
+- **`sound`** — name of a macOS system sound played with the notification. Valid values: `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, `default`.
+- Set `sound` to `"none"` (or any unrecognized name, or leave the file out entirely) to get a silent notification — the toast still appears, just without sound.
+
+---
+
 ## Files
 
 ```
@@ -72,6 +87,7 @@ Then restart your Claude Code session so it picks up the new hook scripts.
 └── hooks/
     ├── hooks.json           # hook registration (Notification + Stop)
     └── notification/
+        ├── config.json                     # user configuration (sound, …)
         ├── claude_notification_check.zsh   # focus check, gate the notification
         ├── claude_notification.zsh         # build + fire the notification
         └── claude_code_icon.png            # icon used in the toast

@@ -11,6 +11,19 @@
 script_dir="${0:A:h}"
 
 # ---------------------------------------------------------------------------
+# 0) Load user config from config.json next to this hook. The only default
+#    lives in config.json itself — no inline fallback here. Missing file,
+#    missing key, "none", or an unrecognized sound name all resolve to
+#    "no sound" downstream (the -sound flag is simply omitted).
+# ---------------------------------------------------------------------------
+config_file="$script_dir/config.json"
+
+sound=""
+if [[ -r "$config_file" ]]; then
+  sound=$(jq -r '.sound // empty' "$config_file" 2>/dev/null)
+fi
+
+# ---------------------------------------------------------------------------
 # 1) Event -> title. Message is filled from the transcript below.
 # ---------------------------------------------------------------------------
 event="${1:-notification}"
@@ -109,8 +122,13 @@ notifier_args=(
   -title "$title"
   -message "$message"
   -contentImage "$script_dir/claude_code_icon.png"
-  -sound Ping
 )
+# Only pass -sound if the config value is a valid macOS system sound.
+# Empty, "none", or unrecognized names => notification without sound.
+valid_sounds=(Basso Blow Bottle Frog Funk Glass Hero Morse Ping Pop Purr Sosumi Submarine Tink default)
+if [[ -n "$sound" && "${sound:l}" != "none" && ${valid_sounds[(Ie)$sound]} -ne 0 ]]; then
+  notifier_args+=(-sound "$sound")
+fi
 if [[ -n "$click_cmd" ]]; then
   notifier_args+=(-execute "$click_cmd")
 fi
