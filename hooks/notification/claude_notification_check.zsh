@@ -13,6 +13,21 @@ script_dir="${0:A:h}"
 
 event="${1:-notification}"
 
+# Per-hook enable/disable. Missing/unreadable config or missing key defaults
+# to enabled, so existing installs keep working.
+config_file="$script_dir/config.json"
+case "$event" in
+  stop) config_key="notifyOnStop" ;;
+  menu) config_key="notifyOnPermission" ;;
+  *)    config_key="" ;;
+esac
+if [[ -n "$config_key" && -r "$config_file" ]]; then
+  # Only literal `false` disables. Missing key -> jq emits "null"; anything
+  # else (true, null, malformed) keeps the hook enabled.
+  enabled=$(jq -r ".${config_key}" "$config_file" 2>/dev/null)
+  [[ "$enabled" == "false" ]] && exit 0
+fi
+
 # Buffer stdin so we can forward it to the notifier script later.
 hook_json=$(cat)
 

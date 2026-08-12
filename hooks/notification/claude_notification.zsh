@@ -11,16 +11,16 @@
 script_dir="${0:A:h}"
 
 # ---------------------------------------------------------------------------
-# 0) Load user config from config.json next to this hook. The only default
-#    lives in config.json itself — no inline fallback here. Missing file,
-#    missing key, "none", or an unrecognized sound name all resolve to
-#    "no sound" downstream (the -sound flag is simply omitted).
+# 0) Load user config from config.json next to this hook. Missing file or
+#    missing key falls back to the macOS "default" system sound; only an
+#    explicit "none" (or an unrecognized name) silences the toast.
 # ---------------------------------------------------------------------------
 config_file="$script_dir/config.json"
 
-sound=""
+sound="default"
 if [[ -r "$config_file" ]]; then
-  sound=$(jq -r '.sound // empty' "$config_file" 2>/dev/null)
+  configured_sound=$(jq -r '.sound // empty' "$config_file" 2>/dev/null)
+  [[ -n "$configured_sound" ]] && sound="$configured_sound"
 fi
 
 # ---------------------------------------------------------------------------

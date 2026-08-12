@@ -64,16 +64,21 @@ Then restart your Claude Code session so it picks up the new hook scripts.
 
 ## Configuration
 
-The plugin reads a `config.json` in `hooks/notification/`. Currently one key is supported:
+The plugin reads a `config.json` in `hooks/notification/`. Supported keys:
 
 ```json
 {
-  "sound": "Ping"
+  "sound": "Ping",
+  "notifyOnStop": true,
+  "notifyOnPermission": true
 }
 ```
 
 - **`sound`** — name of a macOS system sound played with the notification. Valid values: `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, `default`.
-- Set `sound` to `"none"` (or any unrecognized name, or leave the file out entirely) to get a silent notification — the toast still appears, just without sound.
+- Missing `sound` key or missing `config.json` falls back to `default` (the macOS system default sound). Set `sound` to `"none"` (or any unrecognized name) to get a silent notification — the toast still appears, just without sound.
+- **`notifyOnStop`** *(default `true`)* — fire a toast when a Claude session finishes its turn. Set to `false` to silence just this hook.
+- **`notifyOnPermission`** *(default `true`)* — fire a toast when Claude asks for permission (tool approval prompt). Set to `false` to silence just this hook.
+- Missing keys or an unreadable `config.json` fall back to enabled, so existing installs keep working.
 
 ---
 

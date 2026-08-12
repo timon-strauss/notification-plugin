@@ -1,3 +1,5 @@
 {
-  "sound": "Ping"
+  "sound": "Ping",
+  "notifyOnStop": true,
+  "notifyOnPermission": true
 }
