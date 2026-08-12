@@ -1,6 +1,6 @@
 {
   "name": "notification-plugin",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Focus-aware macOS notifications for Claude Code — only notifies when your terminal tab isn't in the foreground.",
   "author": { "name": "Timon Strauß" }
 }
