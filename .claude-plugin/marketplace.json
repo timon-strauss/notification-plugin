@@ -1,0 +1,11 @@
+{
+  "name": "timon-plugins",
+  "owner": { "name": "Timon Strauß" },
+  "plugins": [
+    {
+      "name": "notification-plugin",
+      "source": ".",
+      "description": "Focus-aware macOS notifications for Claude Code."
+    }
+  ]
+}
