@@ -64,7 +64,7 @@ Then restart your Claude Code session so it picks up the new hook scripts.
 
 ## Configuration
 
-Configure the plugin from inside any Claude session — no need to edit files. There are two ways to use the `/notifications-config` command:
+Configure the plugin from inside any Claude session that uses the plugin.
 
 ### Option 1 — Direct: `/notifications-config <key>=<value>`
 
