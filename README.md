@@ -64,16 +64,26 @@ Then restart your Claude Code session so it picks up the new hook scripts.
 
 ## Configuration
 
-The plugin reads a `config.json` in `hooks/notification/`. Currently one key is supported:
+The plugin reads a `config.json` in `hooks/notification/`. Each hook is an object with `enabled` and an optional `sound`; a top-level `defaultSound` covers the hooks that don't set their own:
 
 ```json
 {
-  "sound": "Ping"
+  "defaultSound": "Ping",
+  "stop":        { "enabled": true,  "sound": "Glass" },
+  "stopFailure": { "enabled": true,  "sound": "Basso" },
+  "permission":  { "enabled": true }
 }
 ```
 
-- **`sound`** — name of a macOS system sound played with the notification. Valid values: `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, `default`.
-- Set `sound` to `"none"` (or any unrecognized name, or leave the file out entirely) to get a silent notification — the toast still appears, just without sound.
+- **`defaultSound`** — sound used when a hook doesn't specify its own. Valid values: `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, `default`.
+- **`stop`** — fires when a Claude session finishes its turn.
+- **`stopFailure`** — fires when a session's turn ends due to an API error (rate limit, overload, auth failure, etc.).
+- **`permission`** — fires when Claude asks for permission (tool approval prompt).
+- Each hook object accepts:
+  - **`enabled`** *(default `true`)* — set to `false` to silence just that hook.
+  - **`sound`** *(optional)* — overrides `defaultSound` for that hook only.
+- **Sound fallback chain:** hook `sound` → `defaultSound` → macOS `default` sound. Set any `sound` to `"none"` (or an unrecognized name) for a silent notification — the toast still appears, just without sound.
+- Missing keys or an unreadable `config.json` fall back to enabled hooks with the `default` sound, so existing installs keep working.
 
 ---
 
@@ -85,7 +95,7 @@ The plugin reads a `config.json` in `hooks/notification/`. Currently one key is 
 │   ├── plugin.json          # plugin manifest
 │   └── marketplace.json     # marketplace manifest (single-plugin marketplace)
 └── hooks/
-    ├── hooks.json           # hook registration (Notification + Stop)
+    ├── hooks.json           # hook registration (Notification + Stop + StopFailure)
     └── notification/
         ├── config.json                     # user configuration (sound, …)
         ├── claude_notification_check.zsh   # focus check, gate the notification

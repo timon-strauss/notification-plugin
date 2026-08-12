@@ -1,3 +1,6 @@
 {
-  "sound": "Ping"
+  "defaultSound": "default",
+  "stop":        { "enabled": true, "sound": "Ping"},
+  "stopFailure": { "enabled": true, "sound": "Basso" },
+  "permission":  { "enabled": true, "sound": "Ping" }
 }

@@ -4,23 +4,33 @@
 # prompt in the transcript) and fire it via terminal-notifier.
 #
 # Usage: claude_notification.zsh <event>
-#   <event> = "notification" | "stop" | "menu"
+#   <event> = "notification" | "stop" | "stop_failure" | "menu"
 #
 # Reads the hook JSON payload from stdin to locate the transcript.
 
 script_dir="${0:A:h}"
 
 # ---------------------------------------------------------------------------
-# 0) Load user config from config.json next to this hook. The only default
-#    lives in config.json itself — no inline fallback here. Missing file,
-#    missing key, "none", or an unrecognized sound name all resolve to
-#    "no sound" downstream (the -sound flag is simply omitted).
+# 0) Load user config from config.json next to this hook. Sound resolves
+#    down a fallback chain: per-hook `sound` -> top-level `defaultSound` ->
+#    macOS "default" system sound. Missing config or empty values simply
+#    fall through. An explicit "none" (or an unrecognized name) silences
+#    the toast — the whitelist check further down handles that.
 # ---------------------------------------------------------------------------
 config_file="$script_dir/config.json"
 
-sound=""
+sound="default"
 if [[ -r "$config_file" ]]; then
-  sound=$(jq -r '.sound // empty' "$config_file" 2>/dev/null)
+  hook_sound=""
+  if [[ -n "$CLAUDE_HOOK_KEY" ]]; then
+    hook_sound=$(jq -r ".${CLAUDE_HOOK_KEY}.sound // empty" "$config_file" 2>/dev/null)
+  fi
+  if [[ -n "$hook_sound" ]]; then
+    sound="$hook_sound"
+  else
+    default_sound=$(jq -r '.defaultSound // empty' "$config_file" 2>/dev/null)
+    [[ -n "$default_sound" ]] && sound="$default_sound"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -31,6 +41,9 @@ event="${1:-notification}"
 case "$event" in
   stop)
     title="Claude Session Done!"
+    ;;
+  stop_failure)
+    title="Claude Session hit an Error!"
     ;;
   menu)
     title="Claude Session needs Approval!"

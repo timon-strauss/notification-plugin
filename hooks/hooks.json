@@ -20,6 +20,16 @@
           }
         ]
       }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/notification/claude_notification_check.zsh \"stop_failure\""
+          }
+        ]
+      }
     ]
   }
 }
