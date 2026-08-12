@@ -4,7 +4,7 @@
 # prompt in the transcript) and fire it via terminal-notifier.
 #
 # Usage: claude_notification.zsh <event>
-#   <event> = "notification" | "stop" | "menu"
+#   <event> = "notification" | "stop" | "stop_failure" | "menu"
 #
 # Reads the hook JSON payload from stdin to locate the transcript.
 
@@ -31,6 +31,9 @@ event="${1:-notification}"
 case "$event" in
   stop)
     title="Claude Session Done!"
+    ;;
+  stop_failure)
+    title="Claude Session hit an Error!"
     ;;
   menu)
     title="Claude Session needs Approval!"

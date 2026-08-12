@@ -70,6 +70,7 @@ The plugin reads a `config.json` in `hooks/notification/`. Supported keys:
 {
   "sound": "Ping",
   "notifyOnStop": true,
+  "notifyOnStopFailure": true,
   "notifyOnPermission": true
 }
 ```
@@ -77,6 +78,7 @@ The plugin reads a `config.json` in `hooks/notification/`. Supported keys:
 - **`sound`** — name of a macOS system sound played with the notification. Valid values: `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, `default`.
 - Missing `sound` key or missing `config.json` falls back to `default` (the macOS system default sound). Set `sound` to `"none"` (or any unrecognized name) to get a silent notification — the toast still appears, just without sound.
 - **`notifyOnStop`** *(default `true`)* — fire a toast when a Claude session finishes its turn. Set to `false` to silence just this hook.
+- **`notifyOnStopFailure`** *(default `true`)* — fire a toast when a Claude session's turn ends due to an API error (rate limit, overload, auth failure, etc.). Set to `false` to silence just this hook.
 - **`notifyOnPermission`** *(default `true`)* — fire a toast when Claude asks for permission (tool approval prompt). Set to `false` to silence just this hook.
 - Missing keys or an unreadable `config.json` fall back to enabled, so existing installs keep working.
 
@@ -90,7 +92,7 @@ The plugin reads a `config.json` in `hooks/notification/`. Supported keys:
 │   ├── plugin.json          # plugin manifest
 │   └── marketplace.json     # marketplace manifest (single-plugin marketplace)
 └── hooks/
-    ├── hooks.json           # hook registration (Notification + Stop)
+    ├── hooks.json           # hook registration (Notification + Stop + StopFailure)
     └── notification/
         ├── config.json                     # user configuration (sound, …)
         ├── claude_notification_check.zsh   # focus check, gate the notification

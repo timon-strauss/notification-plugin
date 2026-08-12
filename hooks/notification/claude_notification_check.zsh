@@ -3,7 +3,7 @@
 # Claude Code notification focus check.
 #
 # Usage: claude_notification_check.zsh <event>
-#   <event> = "notification" | "stop" | "menu"
+#   <event> = "notification" | "stop" | "stop_failure" | "menu"
 #
 # Only decides whether to notify: if the terminal tab running this Claude
 # session is NOT currently focused, forward the event + hook JSON (from
@@ -17,9 +17,10 @@ event="${1:-notification}"
 # to enabled, so existing installs keep working.
 config_file="$script_dir/config.json"
 case "$event" in
-  stop) config_key="notifyOnStop" ;;
-  menu) config_key="notifyOnPermission" ;;
-  *)    config_key="" ;;
+  stop)         config_key="notifyOnStop" ;;
+  stop_failure) config_key="notifyOnStopFailure" ;;
+  menu)         config_key="notifyOnPermission" ;;
+  *)            config_key="" ;;
 esac
 if [[ -n "$config_key" && -r "$config_file" ]]; then
   # Only literal `false` disables. Missing key -> jq emits "null"; anything
