@@ -114,7 +114,7 @@ if ! $tab_focused; then
     local pid=$PPID
     while [[ -n "$pid" && "$pid" != "1" && "$pid" != "0" ]]; do
       local bid=$(lsappinfo info -only bundleID "$pid" 2>/dev/null \
-        | sed -n 's/.*"CFBundleIdentifier"="\([^"]*\)".*/\1/p')
+        | grep -o 'bundleID="[^"]*"' | cut -d'"' -f2)
       if [[ -n "$bid" ]]; then
         echo "$bid"
         return
